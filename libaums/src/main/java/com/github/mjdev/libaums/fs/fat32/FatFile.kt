@@ -17,9 +17,11 @@
 
 package com.github.mjdev.libaums.fs.fat32
 
+import android.util.Log
 import com.github.mjdev.libaums.driver.BlockDeviceDriver
 import com.github.mjdev.libaums.fs.AbstractUsbFile
 import com.github.mjdev.libaums.fs.UsbFile
+import com.github.mjdev.libaums.usb.UsbCommunicationFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -41,6 +43,7 @@ class FatFile
 internal constructor(private val blockDevice: BlockDeviceDriver, private val fat: FAT, private val bootSector: Fat32BootSector,
                     private val entry: FatLfnDirectoryEntry, override var parent: FatDirectory?) : AbstractUsbFile() {
     private lateinit var chain: ClusterChain
+    private val TAG = UsbCommunicationFactory::class.java.simpleName
 
     override val isDirectory: Boolean
         get() = false
@@ -121,7 +124,11 @@ internal constructor(private val blockDevice: BlockDeviceDriver, private val fat
         // the parent directory is responsible for updating the
         // FatDirectoryEntry which
         // contains things like the file size and the date time fields
+        var start = System.nanoTime()
         parent!!.write()
+        var end = System.nanoTime()
+        print("time taken to flush (println) ${end - start}")
+        Log.i(TAG,"time taken to flush (log i) ${end - start}")
     }
 
     @Throws(IOException::class)
